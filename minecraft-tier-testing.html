@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090a09">
+  <title>Nexo Crew's Tier Testing</title>
+  <link rel="icon" type="image/webp" href="ICON.webp">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+    :root {
+      color-scheme: dark;
+      --ink: #f2f4f1;
+      --muted: #a4adbb;
+      --dim: #737e90;
+      --line: #29313d;
+      --panel: #11151c;
+      --panel-raised: #171d28;
+      --base: #080b11;
+      --blue: #8db9ff;
+      --blue-soft: #b6d5ff;
+      --red: #f0806e;
+      --mono: 'DM Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background-color: var(--base);
+      background-image: radial-gradient(ellipse at 50% 0%, rgba(91, 146, 238, .1), transparent 46%),
+        linear-gradient(180deg, #0d121c 0%, var(--base) 480px);
+      font-family: var(--sans);
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .hidden { display: none !important; }
+    .mono { font-family: var(--mono); }
+
+    .login-screen {
+      display: grid;
+      min-height: 100vh;
+      place-items: center;
+      padding: 24px;
+    }
+    .login-box { width: min(100%, 410px); }
+    .login-screen { background: rgba(6, 8, 7, .92); }
+    .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 38px; }
+    .brand-mark {
+      display: block;
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(141, 185, 255, .35);
+      border-radius: 10px;
+      background: #080b11;
+      object-fit: cover;
+    }
+    .login-box .brand-mark { width: 52px; height: 52px; border-radius: 12px; }
+    .brand-name { font-size: 16px; font-weight: 700; letter-spacing: 0; }
+    .brand-name span { color: var(--blue); }
+    .eyebrow { color: var(--blue); font: 600 11px var(--sans); letter-spacing: 1px; text-transform: uppercase; }
+    h1 { margin: 10px 0 8px; font-size: 34px; line-height: 1.08; letter-spacing: 0; }
+    .subtle { color: var(--muted); line-height: 1.55; }
+    .login-box form { margin-top: 30px; }
+    label { display: block; margin: 0 0 8px; color: #d3d9d2; font-size: 12px; font-weight: 600; }
+    input, select {
+      width: 100%;
+      min-height: 46px;
+      padding: 0 13px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      outline: none;
+      color: var(--ink);
+      background: #0c100d;
+    }
+    input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(141, 185, 255, .12); }
+    .field { margin-bottom: 18px; }
+    .primary {
+      width: 100%;
+      min-height: 47px;
+      border: 0;
+      border-radius: 7px;
+      color: #101828;
+      background: var(--blue);
+      font-weight: 700;
+      transition: background .15s, transform .15s;
+    }
+    .primary:hover { background: var(--blue-soft); transform: translateY(-1px); }
+    .login-error { min-height: 20px; margin: 12px 0 0; color: var(--red); font-size: 13px; }
+    .login-foot { margin-top: 34px; padding-top: 15px; border-top: 1px solid var(--line); color: var(--dim); font: 10px var(--mono); }
+
+    .app-shell { min-height: 100vh; }
+    .topbar {
+      display: flex;
+      min-height: 72px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(18px, 4vw, 58px);
+      border-bottom: 1px solid var(--line);
+      background: rgba(9, 12, 18, .84);
+      backdrop-filter: blur(16px);
+    }
+    .topbar .brand { margin: 0; }
+    .top-actions { display: flex; align-items: center; gap: 20px; }
+    .admin-label { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 9px rgba(141, 185, 255, .55); }
+    .text-button { padding: 8px 0; border: 0; color: var(--muted); background: transparent; font-size: 12px; font-weight: 600; }
+    .text-button:hover { color: var(--ink); }
+    main { width: min(1120px, calc(100% - 48px)); margin: 0 auto; padding: 48px 0 72px; }
+    .page-heading { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 30px; }
+    h2 { margin: 8px 0 0; font-size: 30px; letter-spacing: 0; }
+    .page-heading .subtle { margin: 7px 0 0; font-size: 14px; }
+    .season { color: var(--muted); font: 11px/1.8 var(--mono); text-align: right; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 34px; }
+    .stat { padding: 18px 20px; border: 1px solid var(--line); border-radius: 9px; background: rgba(17, 21, 18, .8); }
+    .stat-value { display: block; font-size: 28px; font-weight: 600; }
+    .stat-label { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; }
+    .workspace { display: grid; grid-template-columns: minmax(300px, .82fr) minmax(0, 1.5fr); gap: 30px; align-items: start; }
+    .section-heading { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
+    h3 { margin: 0; font-size: 17px; }
+    .section-index { color: var(--dim); font: 10px var(--mono); letter-spacing: .4px; }
+    .test-form { padding: 22px; border: 1px solid var(--line); border-radius: 9px; background: rgba(17, 21, 18, .88); box-shadow: 0 14px 40px rgba(0, 0, 0, .13); }
+    .test-form .field { margin-bottom: 15px; }
+    .test-form .primary { margin-top: 4px; }
+    .tier-guide { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 7px 0 18px; }
+    .tier-chip { padding: 9px 3px; border: 1px solid var(--line); border-radius: 6px; color: var(--muted); background: #0c100d; text-align: center; font: 10px var(--mono); }
+    .tier-chip strong { display: block; margin-bottom: 4px; color: var(--ink); font-size: 13px; }
+    .tier-chip:nth-child(10n+1) strong, .tier-chip:nth-child(10n+2) strong { color: #b6d5ff; }
+    .tier-chip:nth-child(10n+3) strong, .tier-chip:nth-child(10n+4) strong { color: #9fc7ff; }
+    .tier-chip:nth-child(10n+5) strong, .tier-chip:nth-child(10n+6) strong { color: #8db9ff; }
+    .tier-chip:nth-child(10n+7) strong, .tier-chip:nth-child(10n+8) strong { color: #91aee2; }
+    .tier-chip:nth-child(10n+9) strong, .tier-chip:nth-child(10n) strong { color: #9aa8c3; }
+    .history-head { display: grid; grid-template-columns: 1.4fr 1fr .65fr .8fr 36px; gap: 12px; padding: 0 14px 11px; color: var(--dim); font: 10px var(--mono); text-transform: uppercase; letter-spacing: .6px; }
+    .result-list { overflow: hidden; border: 1px solid var(--line); border-radius: 9px; background: rgba(16, 20, 17, .8); }
+    .result-row { display: grid; grid-template-columns: 1.4fr 1fr .65fr .8fr 36px; gap: 12px; align-items: center; min-height: 62px; padding: 9px 14px; border-bottom: 1px solid rgba(41, 47, 43, .72); animation: appear .24s ease both; }
+    .result-row:last-child { border-bottom: 0; }
+    .player-name { overflow: hidden; font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+    .result-mode, .result-date { color: var(--muted); font: 10px var(--mono); }
+    .tier-badge { width: fit-content; min-width: 48px; padding: 6px 9px; border: 1px solid rgba(182, 213, 255, .3); border-radius: 5px; color: #b6d5ff; background: rgba(182, 213, 255, .08); text-align: center; font: 11px var(--mono); }
+    .tier-badge[data-tier="HT2"], .tier-badge[data-tier="LT2"] { border-color: rgba(159, 199, 255, .3); color: #9fc7ff; background: rgba(159, 199, 255, .07); }
+    .tier-badge[data-tier="HT3"], .tier-badge[data-tier="LT3"] { border-color: rgba(141, 185, 255, .3); color: #8db9ff; background: rgba(141, 185, 255, .07); }
+    .tier-badge[data-tier="HT4"], .tier-badge[data-tier="LT4"] { border-color: rgba(145, 174, 226, .3); color: #91aee2; background: rgba(145, 174, 226, .07); }
+    .tier-badge[data-tier="HT5"], .tier-badge[data-tier="LT5"] { border-color: rgba(154, 168, 195, .3); color: #9aa8c3; background: rgba(154, 168, 195, .07); }
+    .delete-button { width: 30px; height: 30px; border: 1px solid transparent; border-radius: 6px; color: var(--dim); background: transparent; font-size: 18px; }
+    .delete-button:hover { border-color: #563b36; color: var(--red); }
+    .empty-state { padding: 42px 18px; color: var(--muted); text-align: center; font-size: 13px; }
+    .empty-state strong { display: block; margin-bottom: 6px; color: var(--ink); font-size: 14px; }
+    .toast { position: fixed; right: 22px; bottom: 22px; padding: 12px 16px; border: 1px solid #405677; border-radius: 7px; color: var(--blue); background: #131b29; font: 11px var(--mono); animation: appear .2s ease both; }
+    .local-note { margin-top: 20px; color: var(--dim); font: 10px var(--mono); line-height: 1.6; }
+    .public-screen { min-height: 100vh; }
+    .public-topbar { border-bottom-color: var(--line); background: rgba(9, 12, 18, .84); }
+    .outline-button { min-height: 40px; padding: 0 16px; border: 1px solid #424a43; border-radius: 7px; color: var(--ink); background: rgba(255, 255, 255, .025); font-size: 12px; font-weight: 600; transition: border-color .15s, color .15s, background .15s; }
+    .outline-button:hover { border-color: var(--blue); color: var(--blue); }
+    .public-main { width: min(1050px, calc(100% - 48px)); margin: 0 auto; padding: 66px 0 76px; }
+    .public-heading { display: flex; justify-content: space-between; align-items: end; gap: 24px; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
+    .public-heading h1 { margin-top: 12px; font-size: 48px; }
+    .public-heading .subtle { max-width: 470px; margin: 10px 0 0; }
+    .public-meta { color: var(--muted); font: 11px/1.9 var(--mono); text-align: right; }
+    .public-tiers { display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; margin: 24px 0 44px; }
+    .public-tier { min-height: 72px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; background: rgba(17, 21, 18, .72); }
+    .public-tier strong { display: block; margin-bottom: 5px; color: #b6d5ff; font: 600 14px var(--mono); }
+    .public-tier span { color: var(--muted); font-size: 11px; }
+    .public-tier:nth-child(10n+3) strong, .public-tier:nth-child(10n+4) strong { color: #9fc7ff; }
+    .public-tier:nth-child(10n+5) strong, .public-tier:nth-child(10n+6) strong { color: #8db9ff; }
+    .public-tier:nth-child(10n+7) strong, .public-tier:nth-child(10n+8) strong { color: #91aee2; }
+    .public-tier:nth-child(10n+9) strong, .public-tier:nth-child(10n) strong { color: #9aa8c3; }
+    .public-list .result-row { grid-template-columns: 1.5fr 1fr .6fr 1fr; background: transparent; }
+    .public-list .tier-badge { min-width: 47px; }
+    .public-empty { padding-block: 54px; }
+    .login-back { width: auto; margin-top: 18px; }
+    .public-footer { margin-top: 24px; color: var(--dim); font: 10px var(--mono); letter-spacing: .3px; }
+    @keyframes appear { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 760px) {
+      main { width: min(100% - 32px, 600px); padding-top: 30px; }
+      .workspace { grid-template-columns: 1fr; gap: 34px; }
+      .public-heading { align-items: start; }
+      .public-main { width: min(100% - 32px, 600px); padding-top: 38px; }
+      .page-heading { align-items: start; }
+      .season { padding-top: 5px; }
+    }
+    @media (max-width: 480px) {
+      .topbar { padding: 0 16px; }
+      .topbar .brand-mark { width: 35px; height: 35px; }
+      .topbar .brand-name { font-size: 13px; }
+      .top-actions { gap: 11px; }
+      .public-heading { display: block; }
+      .public-heading h1 { font-size: 34px; }
+      .public-meta { margin-top: 18px; text-align: left; }
+      .public-tiers { grid-template-columns: repeat(2, 1fr); }
+      .public-tier { min-height: 64px; padding: 11px; }
+      .public-list .result-row { grid-template-columns: 1.2fr .8fr .55fr; gap: 8px; padding-inline: 8px; }
+      .public-list .result-date { display: none; }
+      .admin-label { font-size: 0; }
+      .page-heading { display: block; }
+      .season { margin-top: 12px; text-align: left; }
+      h2 { font-size: 25px; }
+      .history-head, .result-row { grid-template-columns: 1.2fr .8fr .55fr 28px; gap: 7px; padding-inline: 8px; }
+      .history-head span:nth-child(4), .result-date { display: none; }
+      .result-mode { font-size: 9px; }
+      .player-name { font-size: 12px; }
+      .stats .stat { padding: 13px 10px; }
+      .stat:first-child { padding-left: 0; }
+      .stat-value { font-size: 22px; }
+      .stat-label { font-size: 9px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="public-screen" id="publicScreen">
+    <header class="topbar public-topbar">
+      <div class="brand"><img class="brand-mark" src="ICON.webp" alt=""><div class="brand-name">NEXO CREW'S <span>TIER TESTING</span></div></div>
+      <button class="outline-button" id="adminLoginButton" type="button">Admin login</button>
+    </header>
+    <main class="public-main">
+      <div class="public-heading">
+        <div><div class="eyebrow">Nexo Crew / competitive rankings</div><h1>Player rankings</h1><p class="subtle">Official tier placements across competitive modes.</p></div>
+        <div class="public-meta"><span id="publicPlayerCount">0 PLAYERS</span><br><span id="publicTestCount">0 RANKINGS</span></div>
+      </div>
+      <div class="public-tiers" aria-label="Tier definitions">
+        <div class="public-tier"><strong>HT1</strong><span>High Tier 1</span></div><div class="public-tier"><strong>LT1</strong><span>Low Tier 1</span></div><div class="public-tier"><strong>HT2</strong><span>High Tier 2</span></div><div class="public-tier"><strong>LT2</strong><span>Low Tier 2</span></div><div class="public-tier"><strong>HT3</strong><span>High Tier 3</span></div><div class="public-tier"><strong>LT3</strong><span>Low Tier 3</span></div><div class="public-tier"><strong>HT4</strong><span>High Tier 4</span></div><div class="public-tier"><strong>LT4</strong><span>Low Tier 4</span></div><div class="public-tier"><strong>HT5</strong><span>High Tier 5</span></div><div class="public-tier"><strong>LT5</strong><span>Low Tier 5</span></div>
+      </div>
+      <section aria-labelledby="publicRankingsTitle">
+        <div class="section-heading"><h3 id="publicRankingsTitle">Current rankings</h3><span class="section-index">LATEST BY PLAYER / MODE</span></div>
+        <div class="history-head" aria-hidden="true"><span>Player</span><span>Mode</span><span>Tier</span><span>Updated</span></div>
+        <div class="result-list public-list" id="publicResultList" aria-live="polite"></div>
+      </section>
+      <div class="public-footer">RANKINGS ARE PUBLIC / TEST MANAGEMENT REQUIRES ADMIN ACCESS</div>
+    </main>
+  </div>
+
+  <section class="login-screen hidden" id="loginScreen" aria-labelledby="loginTitle">
+    <div class="login-box">
+      <div class="brand"><img class="brand-mark" src="05e62fb729e06864a9c597d845184eda.webp" alt=""><div class="brand-name">NEXO CREW'S <span>TIER TESTING</span></div></div>
+      <div class="eyebrow">Nexo Crew / admin access</div>
+      <h1 id="loginTitle">Admin sign in</h1>
+      <p class="subtle">Enter the testing console to record player results and assign tiers.</p>
+      <form id="loginForm">
+        <div class="field"><label for="username">Username</label><input id="username" name="username" autocomplete="username" required autofocus></div>
+        <div class="field"><label for="passcode">Passcode</label><input id="passcode" name="passcode" type="password" autocomplete="current-password" required></div>
+        <button class="primary" type="submit">Open testing console</button>
+        <p class="login-error" id="loginError" role="alert"></p>
+      </form>
+      <button class="text-button login-back" id="publicBackButton" type="button">← Back to public rankings</button>
+      <div class="login-foot">NEXO CREW / ADMIN CONSOLE / LOCAL DEMO</div>
+    </div>
+  </section>
+
+  <div class="app-shell hidden" id="appShell">
+    <header class="topbar">
+      <div class="brand"><img class="brand-mark" src="ICON.webp" alt=""><div class="brand-name">NEXO CREW'S <span>TIER TESTING</span></div></div>
+      <div class="top-actions"><div class="admin-label"><span class="status-dot"></span>ADMIN SESSION</div><button class="text-button" id="logoutButton" type="button">Sign out</button></div>
+    </header>
+    <main>
+      <div class="page-heading">
+        <div><div class="eyebrow">Testing console / 01</div><h2>Player tier testing</h2><p class="subtle">Evaluate players and keep your community rankings current.</p></div>
+        <div class="season">RANKING SEASON<br>OPEN TESTING</div>
+      </div>
+      <section class="stats" aria-label="Testing statistics">
+        <div class="stat"><span class="stat-value" id="totalTests">0</span><span class="stat-label">Tests recorded</span></div>
+        <div class="stat"><span class="stat-value" id="uniquePlayers">0</span><span class="stat-label">Players ranked</span></div>
+        <div class="stat"><span class="stat-value" id="topTierCount">0</span><span class="stat-label">Tier 1 players</span></div>
+      </section>
+      <div class="workspace">
+        <section aria-labelledby="newTestTitle">
+          <div class="section-heading"><h3 id="newTestTitle">Record a test</h3><span class="section-index">INPUT / 01</span></div>
+          <form class="test-form" id="testForm">
+            <div class="field"><label for="player">Player username</label><input id="player" maxlength="16" placeholder="e.g. PlayerOne" required></div>
+            <div class="field"><label for="mode">Test mode</label><select id="mode"><option>Sword</option><option>Axe</option><option>UHC</option><option>Crystal</option><option>SMP</option><option>Other</option></select></div>
+            <div class="field"><label for="tier">Assigned tier</label><select id="tier"><option value="HT1">HT1 · High Tier 1</option><option value="LT1">LT1 · Low Tier 1</option><option value="HT2">HT2 · High Tier 2</option><option value="LT2">LT2 · Low Tier 2</option><option value="HT3">HT3 · High Tier 3</option><option value="LT3" selected>LT3 · Low Tier 3</option><option value="HT4">HT4 · High Tier 4</option><option value="LT4">LT4 · Low Tier 4</option><option value="HT5">HT5 · High Tier 5</option><option value="LT5">LT5 · Low Tier 5</option></select></div>
+            <div class="tier-guide" aria-label="Tier definitions">
+              <div class="tier-chip"><strong>HT1</strong>High 1</div><div class="tier-chip"><strong>LT1</strong>Low 1</div><div class="tier-chip"><strong>HT2</strong>High 2</div><div class="tier-chip"><strong>LT2</strong>Low 2</div><div class="tier-chip"><strong>HT3</strong>High 3</div><div class="tier-chip"><strong>LT3</strong>Low 3</div><div class="tier-chip"><strong>HT4</strong>High 4</div><div class="tier-chip"><strong>LT4</strong>Low 4</div><div class="tier-chip"><strong>HT5</strong>High 5</div><div class="tier-chip"><strong>LT5</strong>Low 5</div>
+            </div>
+            <button class="primary" type="submit">Save test result</button>
+          </form>
+          <p class="local-note">Results are saved in this browser only. Clearing browser storage removes them.</p>
+        </section>
+        <section aria-labelledby="recentTitle">
+          <div class="section-heading"><h3 id="recentTitle">Recent results</h3><span class="section-index" id="resultCount">0 ENTRIES</span></div>
+          <div class="history-head" aria-hidden="true"><span>Player</span><span>Mode</span><span>Tier</span><span>Date</span><span></span></div>
+          <div class="result-list" id="resultList" aria-live="polite"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <div class="toast hidden" id="toast" role="status"></div>
+
+  <script>
+    const ADMIN_USERNAME = 'admin';
+    const ADMIN_PASSCODE = 'CoinSteamVapour';
+    const STORAGE_KEY = 'blockrate-test-results';
+    const TIER_ORDER = ['HT1', 'LT1', 'HT2', 'LT2', 'HT3', 'LT3', 'HT4', 'LT4', 'HT5', 'LT5'];
+    const LEGACY_TIERS = { T1: 'LT1', T2: 'LT2', T3: 'LT3', T4: 'LT4', T5: 'LT5' };
+    const publicScreen = document.getElementById('publicScreen');
+    const loginScreen = document.getElementById('loginScreen');
+    const appShell = document.getElementById('appShell');
+    const loginError = document.getElementById('loginError');
+    const resultList = document.getElementById('resultList');
+    const publicResultList = document.getElementById('publicResultList');
+    let results = loadResults();
+    let toastTimer;
+
+    function loadResults() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        return Array.isArray(saved) ? saved : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveResults() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(results));
+    }
+
+    function normalizeTier(tier) {
+      return LEGACY_TIERS[tier] || tier;
+    }
+
+    function tierRank(tier) {
+      const rank = TIER_ORDER.indexOf(normalizeTier(tier));
+      return rank < 0 ? TIER_ORDER.length : rank;
+    }
+
+    function showConsole() {
+      publicScreen.classList.add('hidden');
+      loginScreen.classList.add('hidden');
+      appShell.classList.remove('hidden');
+      renderResults();
+    }
+
+    function showPublic() {
+      appShell.classList.add('hidden');
+      loginScreen.classList.add('hidden');
+      publicScreen.classList.remove('hidden');
+      renderPublicResults();
+    }
+
+    document.getElementById('adminLoginButton').addEventListener('click', () => {
+      publicScreen.classList.add('hidden');
+      loginScreen.classList.remove('hidden');
+      document.getElementById('username').focus();
+    });
+
+    document.getElementById('publicBackButton').addEventListener('click', showPublic);
+
+    document.getElementById('loginForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const passcode = document.getElementById('passcode').value;
+      if (username === ADMIN_USERNAME && passcode === ADMIN_PASSCODE) {
+        sessionStorage.setItem('blockrate-admin', 'true');
+        loginError.textContent = '';
+        showConsole();
+      } else {
+        loginError.textContent = 'Username or passcode is incorrect.';
+      }
+    });
+
+    document.getElementById('logoutButton').addEventListener('click', () => {
+      sessionStorage.removeItem('blockrate-admin');
+      appShell.classList.add('hidden');
+      showPublic();
+      document.getElementById('passcode').value = '';
+    });
+
+    document.getElementById('testForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const player = document.getElementById('player').value.trim();
+      if (!player) return;
+      results.unshift({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        player,
+        mode: document.getElementById('mode').value,
+        tier: document.getElementById('tier').value,
+        date: new Date().toISOString()
+      });
+      saveResults();
+      event.target.reset();
+      document.getElementById('tier').value = 'LT3';
+      renderResults();
+      renderPublicResults();
+      announce(`${player} saved as ${results[0].tier}.`);
+      document.getElementById('player').focus();
+    });
+
+    function renderResults() {
+      const uniqueNames = new Set(results.map((result) => result.player.toLowerCase()));
+      const topTierNames = new Set(results.filter((result) => ['HT1', 'LT1'].includes(normalizeTier(result.tier))).map((result) => result.player.toLowerCase()));
+      document.getElementById('totalTests').textContent = results.length;
+      document.getElementById('uniquePlayers').textContent = uniqueNames.size;
+      document.getElementById('topTierCount').textContent = topTierNames.size;
+      document.getElementById('resultCount').textContent = `${results.length} ${results.length === 1 ? 'ENTRY' : 'ENTRIES'}`;
+      resultList.replaceChildren();
+      if (results.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        const title = document.createElement('strong');
+        title.textContent = 'No tests recorded yet';
+        empty.append(title, document.createTextNode('Your latest player evaluations will appear here.'));
+        resultList.append(empty);
+        return;
+      }
+      results.forEach((result) => {
+        const row = document.createElement('div');
+        row.className = 'result-row';
+        const player = document.createElement('span');
+        player.className = 'player-name';
+        player.textContent = result.player;
+        const mode = document.createElement('span');
+        mode.className = 'result-mode';
+        mode.textContent = result.mode;
+        const tier = document.createElement('span');
+        tier.className = 'tier-badge';
+        tier.dataset.tier = normalizeTier(result.tier);
+        tier.textContent = normalizeTier(result.tier);
+        const date = document.createElement('span');
+        date.className = 'result-date';
+        date.textContent = new Date(result.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        const remove = document.createElement('button');
+        remove.className = 'delete-button';
+        remove.type = 'button';
+        remove.setAttribute('aria-label', `Delete ${result.player} test`);
+        remove.title = 'Delete result';
+        remove.textContent = '×';
+        remove.addEventListener('click', () => {
+          results = results.filter((item) => item.id !== result.id);
+          saveResults();
+          renderResults();
+          renderPublicResults();
+          announce('Test result deleted.');
+        });
+        row.append(player, mode, tier, date, remove);
+        resultList.append(row);
+      });
+    }
+
+    function renderPublicResults() {
+      const latestByPlayerAndMode = new Map();
+      results.forEach((result) => {
+        const key = `${result.player.toLowerCase()}|${result.mode.toLowerCase()}`;
+        const existing = latestByPlayerAndMode.get(key);
+        if (!existing || new Date(result.date) > new Date(existing.date)) latestByPlayerAndMode.set(key, result);
+      });
+      const rankings = [...latestByPlayerAndMode.values()].sort((first, second) => {
+        const tierOrder = tierRank(first.tier) - tierRank(second.tier);
+        if (tierOrder !== 0) return tierOrder;
+        const modeOrder = first.mode.localeCompare(second.mode);
+        return modeOrder || first.player.localeCompare(second.player);
+      });
+      document.getElementById('publicPlayerCount').textContent = `${new Set(rankings.map((result) => result.player.toLowerCase())).size} PLAYERS`;
+      document.getElementById('publicTestCount').textContent = `${rankings.length} ${rankings.length === 1 ? 'RANKING' : 'RANKINGS'}`;
+      publicResultList.replaceChildren();
+      if (rankings.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state public-empty';
+        const title = document.createElement('strong');
+        title.textContent = 'No rankings published yet';
+        empty.append(title, document.createTextNode('Player results will appear here after their first test.'));
+        publicResultList.append(empty);
+        return;
+      }
+      rankings.forEach((result) => {
+        const row = document.createElement('div');
+        row.className = 'result-row';
+        const player = document.createElement('span');
+        player.className = 'player-name';
+        player.textContent = result.player;
+        const mode = document.createElement('span');
+        mode.className = 'result-mode';
+        mode.textContent = result.mode;
+        const tier = document.createElement('span');
+        tier.className = 'tier-badge';
+        tier.dataset.tier = normalizeTier(result.tier);
+        tier.textContent = normalizeTier(result.tier);
+        const date = document.createElement('span');
+        date.className = 'result-date';
+        date.textContent = new Date(result.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        row.append(player, mode, tier, date);
+        publicResultList.append(row);
+      });
+    }
+
+    function announce(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.remove('hidden');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.add('hidden'), 2600);
+    }
+
+    if (sessionStorage.getItem('blockrate-admin') === 'true') showConsole();
+    else showPublic();
+  </script>
+</body>
+</html>
